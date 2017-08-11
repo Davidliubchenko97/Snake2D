@@ -27,23 +27,23 @@ namespace Snake_sproda5
         }
         public void Render(ConsoleGraphics graphics, uint color, int x, int y)
         {
-            graphics.DrawRectangle(color, x, y, height, width,2);
+            graphics.DrawRectangle(color, x, y, height, width, 2);
         }
-        public void Up(ref int x_h, ref int x_b, ref int x_c, ref int y_h, ref int y_b, ref int y_c)
+        public void Up(ref int y_h)
         {
-            Thread.Sleep(100); y_c = y_b; x_c = x_b; x_b = x_h; y_b = y_h; y_c = y_b; y_h -= 10; 
+            Thread.Sleep(100); y_h -= 10;
         }
-        public void Down(ref int x_h, ref int x_b, ref int x_c, ref int y_h, ref int y_b, ref int y_c)
+        public void Down(ref int y_h)
         {
-            Thread.Sleep(100); y_c = y_b; x_c = x_b; x_b = x_h; y_b = y_h; y_c = y_b; y_h += 10; 
+            Thread.Sleep(100); y_h += 10;
         }
-        public void Left(ref int x_h, ref int x_b, ref int x_c, ref int y_h, ref int y_b, ref int y_c)
+        public void Left(ref int x_h)
         {
-            Thread.Sleep(100); y_c = y_b; x_c = x_b; x_b = x_h; y_b = y_h; y_c = y_b; x_h -= 10; 
+            Thread.Sleep(100); x_h -= 10;
         }
-        public void Right(ref int x_h, ref int x_b, ref int x_c, ref int y_h, ref int y_b, ref int y_c)
+        public void Right(ref int x_h)
         {
-            Thread.Sleep(100); y_c = y_b; x_c = x_b; x_b = x_h;  y_b = y_h; y_c = y_b; x_h += 10; 
+            Thread.Sleep(100); x_h += 10;
         }
     }
     class Apple : Figure
@@ -79,15 +79,15 @@ namespace Snake_sproda5
                     x_apple[i] = x_Random_to_apple.Next(20, 500);
 
                 }
-                while (y_apple[i] % 11 == 0)
+                while (y_apple[i] % 10 == 0)
                 {
                     y_apple[i] = y_Random_to_apple.Next(20, 300);
                 }
             }
 
-            int lenght, X_head, Y_head, x_body, y_body, x_clear, y_clear;
+            int lenght, X_head, Y_head;
             const int delay = 100;
-            int i_toRandom_apple;
+            int i_to_apple;
             bool crashed = false;
             bool quit = false;
             bool retry = false;
@@ -100,20 +100,22 @@ namespace Snake_sproda5
                 Console.Clear();
                 Console.Title = "Используй 'a', 's', 'd', 'w'.  Для выхода нажми 'q' ";
                 X_head = 100; Y_head = 100;
-                x_body = 100; y_body = 110;
-                i_toRandom_apple = 0;
+
+                i_to_apple = 0;
                 lenght = 1;
-                
-                x_clear = 100; y_clear = 120;
                 crashed = false;
-                quit = false;       
+                quit = false;
 
 
                 ConsoleGraphics graphics = new ConsoleGraphics();
                 GameBox box = new GameBox(10, 10, 300, 500);
-                SnakeBody body = new SnakeBody(x_body, y_body);
-                Apple apple = new Apple(x_apple[i_toRandom_apple], y_apple[i_toRandom_apple]);
-                SnakeBody clear = new SnakeBody(x_clear, y_clear);
+                SnakeBody[] body = new SnakeBody[1];
+                int[] x_body_mass = new int[1];
+                int[] y_body_mass = new int[1];
+                x_body_mass[0] = 100; y_body_mass[0] = 110;
+
+                Apple apple = new Apple(x_apple[i_to_apple], y_apple[i_to_apple]);
+
                 SnakeHead head = new SnakeHead(X_head, Y_head);
 
                 // Ждать нажатия клавиши
@@ -151,21 +153,28 @@ namespace Snake_sproda5
                 DateTime nextCheck = DateTime.Now.AddMilliseconds(delay);
                 while (!quit && !crashed)
                 {
-                    
+
                     Console.Title = "Length: " + lenght.ToString();//увеличивает наш счетчик длинны
                     if (X_head < 10 || Y_head < 10 || X_head > 500 || Y_head > 300)
                         crashed = true;
 
-                    if ((X_head - x_apple[i_toRandom_apple])<2 && (Y_head - y_apple[i_toRandom_apple])<2)
+                    if ((X_head - x_apple[i_to_apple]) < 2 && (Y_head - y_apple[i_to_apple]) < 2)
                     {
+                        SnakeBody[] temp = new SnakeBody[body.Length + 1];
+                        for (int i = 0; i < body.Length; i++)
+                        {
+                            temp[i] = body[i];
+                        }
+                        body = temp;
+
                         lenght++;
-                        i_toRandom_apple++;
+                        i_to_apple++;
                     }
 
 
-                    
 
-                    
+
+
                     while (nextCheck > DateTime.Now)
                     {
                         if (Console.KeyAvailable)
@@ -207,12 +216,29 @@ namespace Snake_sproda5
                             }
                         }
                     }
+                    for (int i = 0; i < body.Length - 1; i++)
+                    {
+                        if (body.Length == 1)
+                        {
+                            x_body_mass[0] = X_head;
+                            y_body_mass[0] = Y_head;
+                            break;
+                        }
+                        else
+                        {
+                            x_body_mass[i + 1] = x_body_mass[i];
+                            y_body_mass[i + 1] = y_body_mass[i];
+                        }
+
+                    }
+                    for (int i = 0; i < body.Length; i++)
+                    {
+                        body[i].Render(graphics, 0xFF000000, x_body_mass[i], y_body_mass[i]);
+                    }
                     graphics.FillRectangle(0xFF000000, 0, 0, graphics.ClientHeight, graphics.ClientWidth);
                     box.Render(graphics, 0xFFFFFFFF, 10, 10);
-                    clear.Render(graphics, 0xFF000000, x_clear, y_clear);
-                    body.Render(graphics, 0xFF00A0FF, x_body, y_body);
                     head.Render(graphics, 0xFFFF0000, X_head, Y_head);
-                    apple.Render(graphics, 0xFF00FF00, x_apple[i_toRandom_apple], y_apple[i_toRandom_apple]);
+                    apple.Render(graphics, 0xFF00FF00, x_apple[i_to_apple], y_apple[i_to_apple]);
 
                     if (!quit)
                     {
@@ -220,30 +246,38 @@ namespace Snake_sproda5
                         switch (curDirection)
                         {
                             case Direction.Up:
-                                head.Up(ref X_head, ref x_body, ref x_clear, ref Y_head, ref y_body, ref y_clear);
+                                x_body_mass[body.Length - 1] = X_head;
+                                y_body_mass[body.Length - 1] = Y_head;
+                                head.Up(ref Y_head);
                                 break;
 
                             case Direction.Down:
-                                head.Down(ref X_head, ref x_body, ref x_clear, ref Y_head, ref y_body, ref y_clear);
+                                x_body_mass[body.Length - 1] = X_head;
+                                y_body_mass[body.Length - 1] = Y_head;
+                                head.Down(ref Y_head);
                                 break;
 
                             case Direction.Left:
-                                head.Left(ref X_head, ref x_body, ref x_clear, ref Y_head, ref y_body, ref y_clear);
+                                x_body_mass[body.Length - 1] = X_head;
+                                y_body_mass[body.Length - 1] = Y_head;
+                                head.Left(ref X_head);
                                 break;
 
                             case Direction.Right:
-                                head.Right(ref X_head, ref x_body, ref x_clear, ref Y_head, ref y_body, ref y_clear);
+                                x_body_mass[body.Length - 1] = X_head;
+                                y_body_mass[body.Length - 1] = Y_head;
+                                head.Right(ref X_head);
                                 break;
                         }
                         nextCheck = DateTime.Now.AddMilliseconds(delay);
                     }
                 }
-                
+
 
                 if (crashed)
                 {
                     Console.Title = "*** Crashed! *** Length: " + lenght.ToString() + "     Hit 'q' to quit, or 'r' to retry!";
-                    
+
                     while (!quit && !retry)
                     {
                         if (Console.KeyAvailable)
