@@ -109,7 +109,7 @@ namespace Snake_sproda5
                 x_body_mass[0] = 100; y_body_mass[0] = 110;
 
                 Apple apple = new Apple(x_apple[i_to_apple], y_apple[i_to_apple]);
-
+                var imgApple = graphics.LoadImage("40320.jpg");
                 SnakeHead head = new SnakeHead(X_head, Y_head);
 
                 // Ждать нажатия клавиши
@@ -209,7 +209,8 @@ namespace Snake_sproda5
                     graphics.FillRectangle(0xFF000000, 0, 0, graphics.ClientHeight, graphics.ClientWidth);
                     box.Render(graphics, 0xFFFFFFFF, 10, 10);
                     head.Render(graphics, 0xFFFF0000, X_head, Y_head);
-                    apple.Render(graphics, 0xFF00FF00, x_apple[i_to_apple], y_apple[i_to_apple]);
+                    graphics.DrawImage(imgApple, x_apple[i_to_apple], y_apple[i_to_apple]);
+                    
 
                     if (!quit)
                     {
