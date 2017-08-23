@@ -31,19 +31,19 @@ namespace Snake_sproda5
         }
         public void Up(ref int y_h)
         {
-            Thread.Sleep(100); y_h -= 10;
+             y_h -= 10;
         }
         public void Down(ref int y_h)
         {
-            Thread.Sleep(100); y_h += 10;
+             y_h += 10;
         }
         public void Left(ref int x_h)
         {
-            Thread.Sleep(100); x_h -= 10;
+             x_h -= 10;
         }
         public void Right(ref int x_h)
         {
-            Thread.Sleep(100); x_h += 10;
+             x_h += 10;
         }
     }
     class Apple : Figure
@@ -74,20 +74,14 @@ namespace Snake_sproda5
             int[] y_apple = new int[100000];
             for (int i = 0; i < 100; i++)
             {
-                while (x_apple[i] % 10 == 0)
-                {
-                    x_apple[i] = x_Random_to_apple.Next(20, 500);
-
-                }
-                while (y_apple[i] % 10 == 0)
-                {
-                    y_apple[i] = y_Random_to_apple.Next(20, 300);
-                }
+                    x_apple[i] = 10*x_Random_to_apple.Next(2, 50);
+                    y_apple[i] = 10*y_Random_to_apple.Next(2, 30);
             }
 
             int lenght, X_head, Y_head;
             const int delay = 100;
             int i_to_apple;
+            int speed = 500;
             bool crashed = false;
             bool quit = false;
             bool retry = false;
@@ -123,7 +117,6 @@ namespace Snake_sproda5
                 {
                     Thread.Sleep(100);
                 }
-
                 // изменение направления
                 presskey = Console.ReadKey(true);
                 switch (presskey.KeyChar)
@@ -158,22 +151,17 @@ namespace Snake_sproda5
                     if (X_head < 10 || Y_head < 10 || X_head > 500 || Y_head > 300)
                         crashed = true;
 
-                    if ((X_head - x_apple[i_to_apple]) < 2 && (Y_head - y_apple[i_to_apple]) < 2)
+                    if ((X_head == x_apple[i_to_apple])&& (Y_head == y_apple[i_to_apple]))
                     {
-                        SnakeBody[] temp = new SnakeBody[body.Length + 1];
-                        for (int i = 0; i < body.Length; i++)
-                        {
-                            temp[i] = body[i];
-                        }
-                        body = temp;
-
                         lenght++;
+                        if (lenght % 2 == 0&& speed != 0)
+                        {
+                            speed -= 50;
+                        }
+                            
+                        
                         i_to_apple++;
                     }
-
-
-
-
 
                     while (nextCheck > DateTime.Now)
                     {
@@ -216,25 +204,8 @@ namespace Snake_sproda5
                             }
                         }
                     }
-                    for (int i = 0; i < body.Length - 1; i++)
-                    {
-                        if (body.Length == 1)
-                        {
-                            x_body_mass[0] = X_head;
-                            y_body_mass[0] = Y_head;
-                            break;
-                        }
-                        else
-                        {
-                            x_body_mass[i + 1] = x_body_mass[i];
-                            y_body_mass[i + 1] = y_body_mass[i];
-                        }
 
-                    }
-                    for (int i = 0; i < body.Length; i++)
-                    {
-                        body[i].Render(graphics, 0xFF000000, x_body_mass[i], y_body_mass[i]);
-                    }
+                    Thread.Sleep(speed);
                     graphics.FillRectangle(0xFF000000, 0, 0, graphics.ClientHeight, graphics.ClientWidth);
                     box.Render(graphics, 0xFFFFFFFF, 10, 10);
                     head.Render(graphics, 0xFFFF0000, X_head, Y_head);
